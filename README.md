@@ -2,5 +2,5 @@
 
 ## Basic PropSystem
 
-###You can add as many props as you want !
-###I Wont give any support!
+You can add as many props as you want !
+I Wont give any support!
