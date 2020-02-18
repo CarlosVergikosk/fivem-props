@@ -1,14 +1,7 @@
 local holdingPackage          = false
 local dropkey 	= 246 -- Key to drop/get the props
 local closestEntity = 0
-ESX = nil
 
-Citizen.CreateThread(function()
-	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(0)
-	end
-end)
 
 -- Proplist, you can add as much as you want
 attachPropList = {
@@ -43,7 +36,7 @@ attachPropList = {
 
 RegisterNetEvent('inrp_propsystem:attachProp')
 AddEventHandler('inrp_propsystem:attachProp', function(attachModelSent,boneNumberSent,x,y,z,xR,yR,zR)
-	ESX.ShowNotification("~r~Y~w~ to pickup/drop                    ~r~ /r~w~ to remove", true, false, 120)
+	notifi("~r~Y~w~ to pickup/drop                    ~r~ /r~w~ to remove", true, false, 120)
     closestEntity = 0
     holdingPackage = true
     local attachModel = GetHashKey(attachModelSent)
@@ -62,6 +55,12 @@ AddEventHandler('inrp_propsystem:attachProp', function(attachModelSent,boneNumbe
 	Citizen.Wait(200)
     AttachEntityToEntity(closestEntity, GetPlayerPed(-1), bone, x, y, z, xR, yR, zR, 1, 1, 0, true, 2, 1)
 end)
+
+function notifi(text)
+	BeginTextCommandDisplayHelp("STRING")
+	AddTextComponentSubstringPlayerName(text)
+	EndTextCommandDisplayHelp(0, false, false, 3000)
+end
 
 function loadAnimDict(dict)
     while (not HasAnimDictLoaded(dict)) do
