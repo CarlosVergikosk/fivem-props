@@ -1,7 +1,6 @@
-local holdingPackage          = false
-local dropkey 	= 246 -- Key to drop/get the props
+local holdingPackage = false
+local dropkey = 246 -- Key to drop/get the props
 local closestEntity = 0
-
 
 -- Proplist, you can add as much as you want
 attachPropList = {
@@ -35,16 +34,16 @@ attachPropList = {
 }
 
 RegisterNetEvent('inrp_propsystem:attachProp')
-AddEventHandler('inrp_propsystem:attachProp', function(attachModelSent,boneNumberSent,x,y,z,xR,yR,zR)
-	notifi("~r~Y~w~ to pickup/drop                    ~r~ /r~w~ to remove", true, false, 120)
+AddEventHandler('inrp_propsystem:attachProp', function(attachModelSent, boneNumberSent, x, y, z, xR, yR, zR)
+	notifi("~r~Y~w~ to pickup/drop ~r~/r~w~ to remove", true, false, 120)
     closestEntity = 0
     holdingPackage = true
     local attachModel = GetHashKey(attachModelSent)
-    SetCurrentPedWeapon(GetPlayerPed(-1), 0xA2719263) 
-    local bone = GetPedBoneIndex(GetPlayerPed(-1), boneNumberSent)
+    SetCurrentPedWeapon(PlayerPedId(), 0xA2719263) 
+    local bone = GetPedBoneIndex(PlayerPedId(), boneNumberSent)
     RequestModel(attachModel)
     while not HasModelLoaded(attachModel) do
-        Citizen.Wait(0)
+        Wait(0)
     end
     closestEntity = CreateObject(attachModel, 1.0, 1.0, 1.0, 1, 1, 0)
 	for i=1 ,#attachPropList , 1 do
@@ -52,8 +51,8 @@ AddEventHandler('inrp_propsystem:attachProp', function(attachModelSent,boneNumbe
 			holdAnim()
 		end
 	end
-	Citizen.Wait(200)
-    AttachEntityToEntity(closestEntity, GetPlayerPed(-1), bone, x, y, z, xR, yR, zR, 1, 1, 0, true, 2, 1)
+	Wait(200)
+    AttachEntityToEntity(closestEntity, PlayerPedId(), bone, x, y, z, xR, yR, zR, 1, 1, 0, true, 2, 1)
 end)
 
 function notifi(text)
@@ -65,25 +64,25 @@ end
 function loadAnimDict(dict)
     while (not HasAnimDictLoaded(dict)) do
         RequestAnimDict(dict)
-        Citizen.Wait(0)
+        Wait(0)
     end
 end
 
 function randPickupAnim()
-  local randAnim = math.random(7)
+    local randAnim = math.random(7)
     loadAnimDict('random@domestic')
-    TaskPlayAnim(GetPlayerPed(-1),'random@domestic', 'pickup_low',5.0, 1.0, 1.0, 48, 0.0, 0, 0, 0)
+    TaskPlayAnim(PlayerPedId(),'random@domestic', 'pickup_low',5.0, 1.0, 1.0, 48, 0.0, 0, 0, 0)
 end
 
 function holdAnim()
     loadAnimDict( "anim@heists@box_carry@" )
-	TaskPlayAnim((GetPlayerPed(-1)),"anim@heists@box_carry@","idle",4.0, 1.0, -1,49,0, 0, 0, 0)
+	TaskPlayAnim((PlayerPedId()),"anim@heists@box_carry@","idle",4.0, 1.0, -1,49,0, 0, 0, 0)
 end
 
-Citizen.CreateThread( function()
+CreateThread( function()
     while true do 
-		Citizen.Wait(10)		
-		if IsPedOnFoot(GetPlayerPed(-1)) and not IsPedDeadOrDying(GetPlayerPed(-1)) then
+		Wait(10)		
+		if IsPedOnFoot(PlayerPedId()) and not IsPedDeadOrDying(PlayerPedId()) then
 			if IsControlJustReleased(0, dropkey) then
 				local playerPed = PlayerPedId()
 				local coords    = GetEntityCoords(playerPed)
@@ -98,7 +97,7 @@ Citizen.CreateThread( function()
 							closestDistance = distance
 							closestEntity   = object
 							if not holdingPackage then
-								local dst = GetDistanceBetweenCoords(GetEntityCoords(closestEntity) ,GetEntityCoords(GetPlayerPed(-1)),true)                 
+								local dst = GetDistanceBetweenCoords(GetEntityCoords(closestEntity) ,GetEntityCoords(PlayerPedId()),true)                 
 								if dst < 2 then
 									holdingPackage = true
 									if attachPropList[i].anim == 'pick' then
@@ -106,7 +105,7 @@ Citizen.CreateThread( function()
 									elseif attachPropList[i].anim == 'hold' then
 										holdAnim()
 									end
-									Citizen.Wait(550)
+									Wait(550)
 									NetworkRequestControlOfEntity(closestEntity)
 									while not NetworkHasControlOfEntity(closestEntity) do
 										Wait(0)
@@ -116,17 +115,17 @@ Citizen.CreateThread( function()
 										Wait(0)
 									end
 									SetEntityHasGravity(closestEntity, true)
-									AttachEntityToEntity(closestEntity, GetPlayerPed(-1),GetPedBoneIndex(GetPlayerPed(-1), attachPropList[i].bone), attachPropList[i].x, attachPropList[i].y, attachPropList[i].z, attachPropList[i].xR, attachPropList[i].yR, attachPropList[i].zR, 1, 1, 0, true, 2, 1)
+									AttachEntityToEntity(closestEntity, PlayerPedId(),GetPedBoneIndex(PlayerPedId(), attachPropList[i].bone), attachPropList[i].x, attachPropList[i].y, attachPropList[i].z, attachPropList[i].xR, attachPropList[i].yR, attachPropList[i].zR, 1, 1, 0, true, 2, 1)
 								end
 							else
 								holdingPackage = false
 								if attachPropList[i].anim == 'pick' then
 									randPickupAnim()
 								end
-								Citizen.Wait(350)
+								Wait(350)
 								DetachEntity(closestEntity)
-								ClearPedTasks(GetPlayerPed(-1))
-								ClearPedSecondaryTask(GetPlayerPed(-1))
+								ClearPedTasks(PlayerPedId())
+								ClearPedSecondaryTask(PlayerPedId())
 							end
 						end
 						break
@@ -134,7 +133,7 @@ Citizen.CreateThread( function()
 				end
 			end
 		else
-			Citizen.Wait(500)
+			Wait(500)
 		end
 	end
 end)
@@ -151,8 +150,8 @@ end
 
 function removeall()
     TriggerEvent("RemoveItems",false)
-	ClearPedTasks(GetPlayerPed(-1))
-	ClearPedSecondaryTask(GetPlayerPed(-1))
+	ClearPedTasks(PlayerPedId())
+	ClearPedSecondaryTask(PlayerPedId())
 end
 
 RegisterNetEvent('inrp_propsystem:attachItem')
@@ -166,13 +165,13 @@ end)
 
 RegisterNetEvent("RemoveItems")
 AddEventHandler("RemoveItems", function(sentinfo)
-    SetCurrentPedWeapon(GetPlayerPed(-1), GetHashKey("weapon_unarmed"), 1)
+    SetCurrentPedWeapon(PlayerPedId(), GetHashKey("weapon_unarmed"), 1)
 	removeAttachedProp()
 	holdingPackage = false
 end)
 
 
-Citizen.CreateThread( function()
+CreateThread( function()
 	RegisterCommand("r", function()
 		removeall()
 	end, false)
@@ -184,11 +183,9 @@ Citizen.CreateThread( function()
 			if arg == nil then
 				attach(attachPropList[i].model)
 			end
-			
 		end, false)
 	end
-	
 end)
 
 
-Citizen.CreateThread(function() while true do Citizen.Wait(30000) collectgarbage() end end) -- Prevents RAM LEAKS :)
+CreateThread(function() while true do Wait(30000) collectgarbage() end end) -- Prevents RAM LEAKS :)
