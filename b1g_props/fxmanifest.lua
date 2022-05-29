@@ -1,5 +1,4 @@
-fx_version 'adamant'
-
+fx_version 'bodacious'
 game 'gta5'
 
 name 'B1G'
@@ -10,10 +9,7 @@ client_script {
 	'prop.lua'
 }
 
-
 exports {
 	'attach',
 	'removeall'
 }
-
-
